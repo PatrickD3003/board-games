@@ -194,6 +194,7 @@ class Board:
         print(" 1 2 3 4 5 6 7")
 
     def check_winner(self, player):
+
         for y in range(len(self.board)):
             for x in range(len(self.board[y])):
                 # 横検定
@@ -222,7 +223,6 @@ class Board:
         return True
             
     
-
 def play_game(player_1, player_2):
     connect4 = Board()
     connect4_board = connect4.get_board()
