@@ -205,156 +205,42 @@ class MiniMaxAI:
 
         * 2つのコマの接続 = 10ポイント、3つのコマの接続 = 20ポイント
         """
-        # 変数の初期化
-        eval_score = 0
-        # 横方向のチェック
-        eval_score += self.horizontal_checking(connectboard, starty, startx, player)
-        # 縦方向のチェック
-        eval_score += self.vertical_checking(connectboard, starty, startx, player)
-        # 斜め方向のチェック
-        eval_score += self.diagonal_checking(connectboard, starty, startx, player)
-        return eval_score
+        directions = [(-1, 0), (0, -1), (-1, -1), (-1, 1)]  # 横、縦、斜め（左上ー右下）、斜め（右上ー左下）
+        total_score = sum(self.check_direction(connectboard, starty, startx, player, dx, dy) for dx, dy in directions)
+        return total_score
+
+    def check_direction(self, connectboard, starty, startx, player, dx, dy):
+        board = connectboard.get_board()
+        count = 1
+        score = 0
+        x, y = startx + dx, starty + dy
+        # 一方向のチェック
+        while (self.is_whithin_bound(x, y) and self.is_player(board, x, y, player)):
+            count += 1
+            x += dx
+            y += dy
+
+        x, y = startx - dx, starty - dy
+        # 逆方向のチェック
+        while (self.is_whithin_bound(x, y) and self.is_player(board, x, y, player)):
+            count += 1
+            x -= dx
+            y -= dy
+        
+        if count == 3:
+            score += 20
+        elif count == 2:
+            score += 10
+
+        return score
+
+    def is_whithin_bound(self, x, y):
+        return 0 <= x < BOARD_SIZE_X and 0 <= y < BOARD_SIZE_Y
+    
+    def is_player(self, board, x, y, player):
+        return board[y][x] == player
      
-    def horizontal_checking(self, connectboard, starty, startx, player):
-        """
-        水平方向の接続をチェックするメソッド
-        スコアを返す（2つの接続 = 10ポイント、3つの接続 = 20ポイント）
-        """
-        board = connectboard.get_board()
-        count = 1
-        horizontal_score = 0
-        # 初期値の左側をチェック
-        x = startx - 1  
-        while x >= 0:
-            if board[starty][x] == player:
-                count += 1
-            else:
-                break  # これ以上接続なし
-            x -= 1  
-        
-        # 初期値の右側をチェック
-        x = startx + 1
-        while x < BOARD_SIZE_X:
-            if board[starty][x] == player:
-                count += 1
-            else:
-                break  # これ以上接続なし
-            x += 1
-        
-        if count == 3:
-            horizontal_score += 20
-        elif count == 2:
-            horizontal_score += 10
-        
-        return horizontal_score
-
-    def vertical_checking(self, connectboard, starty, startx, player):
-        """
-        垂直方向の接続をチェックするメソッド
-        スコアを返す（2つの接続 = 10ポイント、3つの接続 = 20ポイント）
-        """
-        board = connectboard.get_board()
-        count = 1
-        vertical_score = 0
-
-        # 初期位置からの上側をチェック
-        y = starty - 1  
-        
-        while y >= 0:
-            if board[y][startx] == player:
-                count += 1
-            else:
-                break  # これ以上接続なし
-            y -= 1  
-        
-        # 初期位置の下側をチェック
-        y = starty + 1
-        while y < BOARD_SIZE_Y:
-            if board[y][startx] == player:
-                count += 1
-            else:
-                break  # これ以上接続なし
-            y += 1
-        
-        if count == 3:
-            vertical_score += 20
-        elif count == 2:
-            vertical_score += 10
-        
-        return vertical_score
-
-    def diagonal_checking(self, connectboard, starty, startx, player):
-        """
-        斜め方向の接続をチェックするメソッド
-        スコアを返す（2つの接続 = 10ポイント、3つの接続 = 20ポイント）
-
-        左上から右下および左下から右上の両方をチェックする
-        """
-        board = connectboard.get_board()
-        count = 1
-        diagonal_score = 0
-
-        # 左上から右下へのチェック
-        count = 1
-        # check on the upper-left direction of the initial position
-        x = startx - 1
-        y = starty - 1
-        while x >= 0 and y >= 0:
-            if board[y][x] == player:
-                count += 1
-            else:
-                break
-            x -= 1
-            y -= 1
-
-        # check on the bottom-right directon of the initial position
-        x = startx + 1
-        y = starty + 1
-        while x < BOARD_SIZE_X and y < BOARD_SIZE_Y:
-            if board[y][x] == player:
-                count += 1
-            else:
-                break
-            x += 1
-            y += 1
-        
-        if count == 3:
-            diagonal_score += 20
-        elif count == 2:
-            diagonal_score += 10
-        
-        # check bottom-left to upper-right 
-        count = 1
-        # check on the bottom-left direction of the initial position
-        x = startx - 1 
-        y = starty + 1
-        while x >= 0 and y < BOARD_SIZE_Y:
-            if board[y][x] == player:
-                count += 1
-            else:
-                break
-            x -= 1
-            y += 1
-
-        # check on the upper-right direction of the initial position
-        x = startx + 1
-        y = starty - 1
-        while x < BOARD_SIZE_X and y >= 0:
-            if board[y][x] == player:
-                count += 1
-            else:
-                break
-            x += 1
-            y -= 1
-
-        # score evaluation 
-        if count == 3:
-            diagonal_score += 20
-        elif count == 2:
-            diagonal_score += 10
-        
-        return diagonal_score
-
+    
 class Board:
     def __init__(self):
         self.board = [[EMPTY_SLOT for i in range(BOARD_SIZE_X)]for i in range(BOARD_SIZE_Y)]  # # 盤の初期化
@@ -381,6 +267,9 @@ class Board:
         print(" 1 2 3 4 5 6 7")
 
     def check_winner(self, player):
+        rows = len(self.board)
+        cols = len(self.board[0])
+        
         for y in range(len(self.board)):
             for x in range(len(self.board[y])):
                 # 横検定
@@ -396,7 +285,7 @@ class Board:
                     if self.board[y][x] == player and self.board[y + 1][x + 1] == player and self.board[y + 2][x + 2] == player and self.board[y + 3][x + 3] == player:
                         return True
                 #斜め検定(右上-左下)検定
-                if y < len(self.board)-3 and 3<=x<len(self.board[y]):
+                if y < len(self.board)-3 and 3 <= x <len(self.board[y]):
                     if self.board[y][x] == player and self.board[y + 1][x - 1] == player and self.board[y + 2][x - 2] == player and self.board[y + 3][x - 3] == player:
                         return True
                     
