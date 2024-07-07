@@ -50,7 +50,7 @@ class MiniMaxPlayer:
         if terminal:
             return None, None, evaluation
         
-        if maximizing_player:  # X is maximizing player
+        if maximizing_player:  # Xプレイヤー
             best_evaluation = -20000
             best_move = (None, None)
             # 可能なムーブを回す
@@ -66,7 +66,7 @@ class MiniMaxPlayer:
 
             return best_move[0], best_move[1], best_evaluation
 
-        else:  # O is minimizing player
+        else:  # Oプレイヤー
             best_evaluation = 20000
             best_move = (None, None)
             # 可能なムーブを回す
@@ -157,10 +157,7 @@ class RandomPlayer:
 
 class Board:
     def __init__(self):
-        # self.board = [[" " for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]  # ボードの初期化(3x3),2次元リスト
-        self.board = [['X', 'O', 'O'], 
-                      [' ', 'O', 'X'], 
-                      [' ', 'X', ' ']] 
+        self.board = [[" " for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]  # ボードの初期化(3x3),2次元リスト
         
     def get_board(self):
         return self.board
@@ -225,7 +222,7 @@ def play_the_board(player_1, player_2):
             print(f"Evaluation: {evaluation}")
             print(f"{player_name} player played x:{x+1}, y:{y+1} \n")
 
-        else:  # if player is the minimax player
+        else:
             x, y = current_player.get_next_move(tictacboard)
             the_board[y][x] = player_symbol
             print(f"{player_name} player played x:{x+1}, y:{y+1} \n")
@@ -244,9 +241,10 @@ def play_the_board(player_1, player_2):
 
 
 if __name__ == "__main__":
+    # player_1の手：X,player_2の手：O
     # インスタンスの初期化
-    player_1 = MiniMaxPlayer(SYMBOL_1)  # first player = "X"
-    player_2 = RandomPlayer(SYMBOL_2)  # second player = "O"
+    player_1 = MiniMaxPlayer(SYMBOL_1)  
+    player_2 = RandomPlayer(SYMBOL_2)  
     game_board = Board()
 
     play_the_board(player_1, player_2)
