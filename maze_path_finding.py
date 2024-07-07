@@ -140,10 +140,8 @@ class BfsNode:
 
 class BreadthFirstSearch:
     """
-    explanation:
-    the BFS algo will visit all current depth level 
-    nodes befoe proceeding to the nodes at the next 
-    level of depth.
+    BFSアルゴリズムは、現在の深さレベルのすべてのノードを
+    次の深さレベルのノードに進む前に訪問します。
     """
     def __init__(self, maze_class, name):
         self.name = name
@@ -170,11 +168,10 @@ class BreadthFirstSearch:
         return self.visited
     
     def start_algorithm(self):
-        # run the algorithm if the solution list is empty
         if self.solution == []:
             if self.breadth_first_search():
                 self.backtrack_with_node()
-            else:  # when the function return none
+            else:  
                 return None, None
         path_cost = self.goal_node.get_depth()
         return self.optimal_solution, path_cost
@@ -183,22 +180,21 @@ class BreadthFirstSearch:
         # self.frontierが空ではなければ、ループ続く
         while self.frontier != []:
             # self.frontierをでキューし、self.solutionとself.visitedに値を保存する。
-            dequeued_frontier = self.frontier.pop(0)  # take out the leftmost element of self.frontier
-            # if the dequeued_frontier is equal to the goal node,
-            if self.is_goal_node(dequeued_frontier):
-                # append the selected node to the solution, break from the loop.
-                self.solution.append(dequeued_frontier)
-                self.goal_node = dequeued_frontier
+            parent_node = self.frontier.pop(0)  # self.frontierの最初の要素を取り出す
+            # 勝利検定
+            if self.is_goal_node(parent_node):
+                self.solution.append(parent_node)
+                self.goal_node = parent_node
                 return True
-            # if not, just append the selected node to the solution.
-            if dequeued_frontier.get_position() not in self.visited:
-                self.solution.append(dequeued_frontier)
-                self.visited.append(dequeued_frontier.get_position())
+            # 子ノードを探す
+            if parent_node.get_position() not in self.visited:
+                self.solution.append(parent_node)
+                self.visited.append(parent_node.get_position())
                 # 次のフロンティアを取得する
-                next_frontier = self.find_next_frontier(dequeued_frontier)
+                child_node = self.find_next_frontier(parent_node)
                 # next_frontierをself.frontierリストに追加する。
-                self.frontier += next_frontier
-        # if theres no solution left, return False
+                self.frontier += child_node
+        # 子ノードが全く見付かれない場合は、Falseを返す
         return False
 
     def is_goal_node(self, node):
@@ -328,12 +324,11 @@ class Dijkstra:
 
     def pick_lowest_cost(self):
         """
-        out of all the data available in self.frontier, 
-        pick the one with the lowest score
+        self.frontierリストの中から、コストが一番低いノードを選ぶ
         """
         lowest_cost = float('inf')
         lowest_cost_index = None
-        # loop through the self.frontier:
+
         for index, node in enumerate(self.frontier):
             node_cost = node.get_cost()
             if node_cost < lowest_cost:
@@ -363,8 +358,7 @@ class Dijkstra:
 
     def get_next_frontier_cost(self, pointed_coordinate, next_frontier_coordinate):
         """
-        based on the self.cost_list variable list, get the cost
-        value from pointed_coordinate to next_frontier_coordinate
+        用意された経路コストのリストから、ノードのコストを取得する
         """
         for data in self.cost_list:
             if (data[0] == pointed_coordinate and data[1] == next_frontier_coordinate) or \
@@ -413,11 +407,11 @@ class greedyNode:
 
 class greedyBestFirstSearch:
     """
-    greedy-BFS uses a heuristic function h(n) to estimate the 
-    direct distance from the current node to the goal.
-    The algorithm works by evaluating the cost of each possible 
-    path and then expanding the path with the lowest cost. This 
-    process is repeated until the goal is reached.
+    greedy-BFSはヒューリスティック関数h(n)を使用して、
+    現在のノードから目標までの直線距離を推定します。
+    アルゴリズムは各可能な経路のコストを評価し、最も
+    低いコストの経路を拡張します。このプロセスを目標に
+    到達するまで繰り返します。
     """
     def __init__(self, maze_class, name):
         self.name = name
@@ -571,8 +565,9 @@ class aStarNode:
 
 class aStar:
     """
-    variation of a best first search algorithm that evaluate 
-    both travel cost and heuristic function.
+    A*アルゴリズムは、移動コストg(n)とヒューリスティック関数h(n)の
+    両方を評価します。総コストf(n) = g(n) + h(n)を用いて、最も低い
+    コストのノードを選択し、目標ノードに到達するまで繰り返します。
     """
     def __init__(self, maze_class, name):
         self.name = name
@@ -626,7 +621,7 @@ class aStar:
                 next_frontier = self.find_next_frontier(dequeued_frontier)
                 # next_frontierをself.frontierリストに追加する。
                 self.frontier += next_frontier
-        # if theres no solution left, return False
+        # 次の手が見つからない場合
         return False
 
     def pick_lowest_cost(self):
@@ -636,7 +631,6 @@ class aStar:
         """
         lowest_cost = float('inf')
         lowest_cost_index = None
-        # loop through the self.frontier:
         for index, node in enumerate(self.frontier):
             node_f_cost = node.get_f_cost()
             if node_f_cost < lowest_cost:
@@ -670,19 +664,19 @@ class aStar:
 
     def get_next_frontier_cost(self, parent_coordinate, child_coordinate):
         """
-        based on the self.cost_list variable list, get the cost
-        value from pointed_coordinate to next_frontier_coordinate
+        self.cost_list変数リストに基づいて、親座標から子座標への
+        コスト値を取得します。
         """
         for data in self.cost_list:
             if (data[0] == parent_coordinate and data[1] == child_coordinate) or \
                 (data[0] == child_coordinate and data[1] == parent_coordinate):
-                manhattan_distance = self.get_manhattan_distance(child_coordinate)
-                return data[2], manhattan_distance
+                heuristic_value = self.get_manhattan_distance(child_coordinate)
+                return data[2], heuristic_value
         print("no data found :(")
 
     def get_manhattan_distance(self, child_coordinate):
         """
-        count the manhattan distance of a coordinate
+        マンハッタン距離（ヒューリスティック値)を計算する関数
         """
         row, column = child_coordinate
         goal_row, goal_column = self.goal_node.get_position()
